@@ -1,0 +1,7 @@
+https://linuxhint.com/install-eclipse-ide-debian-11/
+
+java --version
+look for java ?
+wget https://rhlx01.hs-esslingen.de/pub/Mirrors/eclipse/oomph/epp/2023-03/R/eclipse-inst-jre-linux64.tar.gz
+tar -xf eclipse-inst-jre-linux64.tar.gz
+
