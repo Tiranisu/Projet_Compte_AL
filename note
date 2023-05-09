@@ -16,3 +16,7 @@ do
     echo "$NAME - $SURNAME - $MAIL - $MAIL - $PASSWORD"
 done
 
+userdel -r 
+
+https://askubuntu.com/questions/644092/bash-script-and-escaping-special-characters-in-password
+
