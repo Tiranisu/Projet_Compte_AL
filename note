@@ -5,3 +5,14 @@ look for java ?
 wget https://rhlx01.hs-esslingen.de/pub/Mirrors/eclipse/oomph/epp/2023-03/R/eclipse-inst-jre-linux64.tar.gz
 tar -xf eclipse-inst-jre-linux64.tar.gz
 
+FICHIER=`cat accounts.csv`
+for data in $FICHIER 
+do
+    echo $data
+    NAME=`echo $data | awk -F";"`
+    SURMANE=`echo $data | awk -F";"`
+    MAIL=`echo $data | awk -F";"`
+    PASSWORD=`echo $data | awk -F";"`
+    echo "$NAME - $SURNAME - $MAIL - $MAIL - $PASSWORD"
+done
+
