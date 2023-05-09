@@ -14,3 +14,4 @@ L’objectif de ce projet est de mettre à profit les compétences que vous avez
 - [ ] Eclipse : (1 points)
 - [ ] Pare-feux : (1 point)
 - [ ] Nextcloud : (5 points)
+- [ ] Monitoring : (3 points)
