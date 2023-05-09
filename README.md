@@ -1,3 +1,8 @@
 # Projet_Compte_AL
-- [x] oui
+
+
+
+## Etapes du projet :
+- [ ] Base : 
+  - [ ] Création compte 
 - [ ] peut etre
