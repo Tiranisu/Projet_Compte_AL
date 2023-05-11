@@ -15,3 +15,6 @@ L’objectif de ce projet est de mettre à profit les compétences que vous avez
 - [ ] Pare-feux : (1 point)
 - [ ] Nextcloud : (5 points)
 - [ ] Monitoring : (3 points)
+
+
+Pour que le programme fonctionne il faut impérativement avoir configuré son accès ssh grace à son id-rsa. Sinon il vous demandera d'entrer le mot de passe au moment de la connexion
