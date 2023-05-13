@@ -4,7 +4,7 @@ L’objectif de ce projet est de mettre à profit les compétences que vous avez
 
 ## Etapes du projet :
 - [ ] Base : (6 points)
-    - [ ] Création d’un compte sur une machine locale, avec un home, un login déterminé, un mot de passe déterminé et à changer
+    - [x] Création d’un compte sur une machine locale, avec un home, un login déterminé, un mot de passe déterminé et à changer
     - [ ] Envoi de mail de connexion avec explications (serveur smtp)
 - [ ] Sauvegarde : (4 points)
     - [ ] Système de sauvegarde automatique d’un dossier
