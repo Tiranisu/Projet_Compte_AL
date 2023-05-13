@@ -1,11 +1,13 @@
 #!/bin/bash
 
+
 #*---------------------------------------------------------*
 #*                Définition des variables                 *
 #*---------------------------------------------------------*
 file="accounts.csv"
 username="mgrell25"
 server_ip="10.30.48.100"
+
 
 #*---------------------------------------------------------*
 #*     Fonction pour le choix de méthode d'éxécution       *
@@ -25,9 +27,25 @@ done
 
 
 #*---------------------------------------------------------*
+#*   Fonction pour la création des différents fichiers     *
+#*---------------------------------------------------------*
+if [ $input == 1 ]; then
+                userdel -r $login
+else 
+        if [ ! -d "/home/$login" ]; then
+                mkdir /home/shared
+                chown root /home/shared
+        fi
+
+        if [ ! -d "/home/$login/a_sauver" ]; then
+                echo ""
+        fi
+fi
+
+
+#*---------------------------------------------------------*
 #*   Fonction pour récuperer les données du fichier csv    *
 #*---------------------------------------------------------*
-
 #Lecture dans le fichier 
 #Utilisation du -r avec read pour ne pas interpréter les caractères d'échappement (exemple avec l'antislash)
 #Source : https://forum.ubuntu-fr.org/viewtopic.php?id=245081
@@ -46,9 +64,10 @@ do
         else 
                 if [ ! -d "/home/$login" ]; then
                         useradd -m "$login"
-                        password_clean=$(echo "$password" | sed 's/\n$//'| sed 's/ $//' | sed 's/\r$//')
-                        echo -e "$password_clean\n$password_clean" | passwd "$login"
-                        chage -d 0 $login # Définir la date d'expiration du mot de passe30
+                        echo -e "${password::-2}\n${password::-2}" | passwd "$login"
+
+                        # Définir la date d'expiration du mot de passe à 0
+                        chage -d 0 $login 
                 fi
 
                 # Création du fichier a_sauver pour les utilisateurs s'il n'exixte pas
@@ -57,7 +76,8 @@ do
                 fi
         fi
 
+
+#https://stackoverflow.com/questions/28927162/why-process-substitution-does-not-always-work-with-while-loop-in-bash
 done < <(awk 'NR>1' $file)
 
-#sudo mkdir /home/shared
-#sudo chown root /home/shared
+
