@@ -13,11 +13,11 @@ server_ip="10.30.48.100"
 #*     Fonction pour le choix de méthode d'éxécution       *
 #*---------------------------------------------------------*
 echo "Que voulez-vous faire ?"
-select i in "Voulez-vous faire une installation ?" "Néttoyer votre machine d'une installation ?"; do
+select i in "Voulez-vous faire une installation ?" "Néttoyer votre machine d'une installation ? (suppresion de tous les fichiers en lien avec le projet)"; do
         if [ "$i" = "Voulez-vous faire une installation ?" ]; then
                 input=1
                 break
-        elif [ "$i" = "Néttoyer votre machine d'une installation ?" ]; then
+        elif [ "$i" = "Néttoyer votre machine d'une installation ? (suppresion de tous les fichiers en lien avec le projet)" ]; then
                 input=2
                 break
         else
@@ -30,15 +30,16 @@ done
 #*   Fonction pour la création des différents fichiers     *
 #*---------------------------------------------------------*
 if [ $input == 1 ]; then
-                userdel -r $login
-else 
-        if [ ! -d "/home/$login" ]; then
+        if [ ! -d "/home/shared" ]; then
+                #Création su fichier shared
                 mkdir /home/shared
+                #Changement de l'appartenance à root
                 chown root /home/shared
+                chmod o+rx /home/shared
         fi
-
-        if [ ! -d "/home/$login/a_sauver" ]; then
-                echo ""
+else 
+        if [ -d "/home/shared" ]; then
+                rm -r /home/shared
         fi
 fi
 
@@ -60,7 +61,9 @@ do
         login="${name:0:1}${surname// /}" 
 
         if [ $input == 2 ]; then
-                userdel -r $login
+                if [ -d "/home/$login" ]; then
+                        userdel -r $login
+                fi
         else 
                 if [ ! -d "/home/$login" ]; then
                         useradd -m "$login"
@@ -70,12 +73,22 @@ do
                         chage -d 0 $login 
                 fi
 
+
                 # Création du fichier a_sauver pour les utilisateurs s'il n'exixte pas
                 if [ ! -d "/home/$login/a_sauver" ]; then
                         mkdir /home/$login/a_sauver
                 fi
-        fi
 
+
+                #Creation du fichier de l'utilisateur dans le fichier shared s'il n'existe pas
+                if [ ! -d "/home/shared/$login" ]; then
+                        mkdir /home/shared/$login
+                fi
+                chown $login /home/shared/$login
+                chmod o+rx /home/shared/$login
+                chmod u-rx /home/shared/$login
+                chmod u+w /home/shared/$login
+        fi
 
 #https://stackoverflow.com/questions/28927162/why-process-substitution-does-not-always-work-with-while-loop-in-bash
 done < <(awk 'NR>1' $file)
