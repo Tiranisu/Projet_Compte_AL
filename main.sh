@@ -111,6 +111,9 @@ do
                 chmod u+w /home/shared/$login
 
 
+                #*---------------------------------------------------------*
+                #*           Envoie des mails aux utilisateurs             *
+                #*---------------------------------------------------------*
                 #ssh $username@$server_ip 'mail 
                 #        --subject "$name $ surname, votre compte à été créé !" 
                 #        --exec "set sendmail=smtp://$sender_mail:$sender_passwd;auth=LOGIN@$auth_param" 
@@ -118,6 +121,13 @@ do
                 #        "Bonjour, \n bonne nouvelle, votre compte est désormais disponible.\Pour pouvoir vous connectez, il vous suffit de vous munir de votre identifiant ainsi que votre mot de passe :\n Identifiant : $login\n Mot de passe : $password\n
                 #        A des fin de sécurité, lors de votre 1er connexion, vous devrez changer votre mot de passe.\nCordialement."'
                 
+
+                #*---------------------------------------------------------*
+                #*            Sauvegarde sur le serveur distant            *
+                #*---------------------------------------------------------*
+                #zip -r save_$login.zip /home/$login/a_sauver
+                #scp save_$login.zip $username@$server_ip:/home/shared/
+                #rm save_$login.zip
         fi
 
 #https://stackoverflow.com/questions/28927162/why-process-substitution-does-not-always-work-with-while-loop-in-bash
