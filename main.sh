@@ -17,6 +17,17 @@ sender_passwd="68Mgn04N*"
 auth_param="smtp.office365.com:587"
 
 
+#*---------------------------------------------------------*
+#*               Configuration du Pare-feu                 *
+#*---------------------------------------------------------*
+#apt-get install ufw
+#ufw active
+#Bloque toutes les connexions de type FTP (sur le port 21)
+#ufw deny 21 
+#Bloque toutes les connexions de type UDP
+#ufw deny udp
+#Besoin de redemarrer pour appliquer les modifications
+#ufw reload 
 
 
 #*---------------------------------------------------------*
