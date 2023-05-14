@@ -7,6 +7,16 @@
 file="accounts.csv"
 username="mgrell25"
 server_ip="10.30.48.100"
+#Ici il faut mettrer l'adresse mail de l'envoyeur avec le @ remplacer par %40 
+sender_mail="mael.grellier-neau%40isen-ouest.yncrea.fr"
+#Là, l'adresse avec l'@
+sender_mail_full="mael.grellier-neau@isen-ouest.yncrea.fr"
+#Le mot de passe du compte mail
+sender_passwd="68Mgn04N*"
+#Les informations du serveur smtp de l'envoyeur
+auth_param="smtp.office365.com:587"
+
+
 
 
 #*---------------------------------------------------------*
@@ -88,6 +98,15 @@ do
                 chmod o+rx /home/shared/$login
                 chmod u-rx /home/shared/$login
                 chmod u+w /home/shared/$login
+
+
+                #ssh $username@$server_ip 'mail 
+                #        --subject "$name $ surname, votre compte à été créé !" 
+                #        --exec "set sendmail=smtp://$sender_mail:$sender_passwd;auth=LOGIN@$auth_param" 
+                #        --append "From:$enser_mail_full" $receiver_mail <<< 
+                #        "Bonjour, \n bonne nouvelle, votre compte est désormais disponible.\Pour pouvoir vous connectez, il vous suffit de vous munir de votre identifiant ainsi que votre mot de passe :\n Identifiant : $login\n Mot de passe : $password\n
+                #        A des fin de sécurité, lors de votre 1er connexion, vous devrez changer votre mot de passe.\nCordialement."'
+                
         fi
 
 #https://stackoverflow.com/questions/28927162/why-process-substitution-does-not-always-work-with-while-loop-in-bash
