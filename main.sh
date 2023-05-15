@@ -8,9 +8,9 @@ file="accounts.csv"
 username="mgrell25"
 server_ip="10.30.48.100"
 #Ici il faut mettrer l'adresse mail de l'envoyeur avec le @ remplacer par %40 
-sender_mail="mael.grellier-neau%40isen-ouest.yncrea.fr"
+sender_mail="mael.grellier-neau@isen-ouest.yncrea.fr"
 #Là, l'adresse avec l'@
-sender_mail_full="mael.grellier-neau@isen-ouest.yncrea.fr"
+sender_mail_full="mael.grellier-neau%40isen-ouest.yncrea.fr"
 #Le mot de passe du compte mail
 sender_passwd="68Mgn04N*"
 #Les informations du serveur smtp de l'envoyeur
@@ -114,23 +114,18 @@ do
                 #*---------------------------------------------------------*
                 #*           Envoie des mails aux utilisateurs             *
                 #*---------------------------------------------------------*
-                #ssh $username@$server_ip 'mail 
-                #        --subject "$name $ surname, votre compte à été créé !" 
-                #        --exec "set sendmail=smtp://$sender_mail:$sender_passwd;auth=LOGIN@$auth_param" 
-                #        --append "From:$enser_mail_full" $receiver_mail <<< 
-                #        "Bonjour, \n bonne nouvelle, votre compte est désormais disponible.\Pour pouvoir vous connectez, il vous suffit de vous munir de votre identifiant ainsi que votre mot de passe :\n Identifiant : $login\n Mot de passe : $password\n
-                #        A des fin de sécurité, lors de votre 1er connexion, vous devrez changer votre mot de passe.\nCordialement."'
-                
+                ssh -n -i /home/isen/.ssh/id_rsa mgrell25@10.30.48.100 "mail --subject \"$name $surname, votre compte à été créé !\" --exec \"set sendmail=smtp://${sender_mail/@/%40}:$sender_passwd;auth=LOGIN@smtp.office365.com:587\" --append \"From:mael.grellier-neau@isen-ouest.yncrea.fr\" mael.grelneau@gmail.com <<< \"Bonjour, \n bonne nouvelle, votre compte est désormais disponible.\Pour pouvoir vous connectez, il vous suffit de vous munir de votre identifiant ainsi que votre mot de passe :\n Identifiant : $login\n Mot de passe : $password\n A des fin de sécurité, lors de votre 1er connexion, vous devrez changer votre mot de passe.\nCordialement.\""
+
 
                 #*---------------------------------------------------------*
                 #*            Sauvegarde sur le serveur distant            *
                 #*---------------------------------------------------------*
-                #zip -r save_$login.zip /home/$login/a_sauver
-                #scp save_$login.zip $username@$server_ip:/home/shared/
-                #rm save_$login.zip
+                tar -czvf save_$login.tgz /home/$login/a_sauver
+                scp -i /home/isen/.ssh/id_rsa save_$login.tgz mgrell25@10.30.48.100:/home/saves
+                rm save_$login.tgz
+                
+                # crontab -l | { cat; echo "0 0 0 0 0 some entry"; } | crontab -
         fi
-
 #https://stackoverflow.com/questions/28927162/why-process-substitution-does-not-always-work-with-while-loop-in-bash
 done < <(awk 'NR>1' $file)
-
 
