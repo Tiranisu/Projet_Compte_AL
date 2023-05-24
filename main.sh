@@ -123,8 +123,42 @@ do
                 tar -czvf save_$login.tgz /home/$login/a_sauver
                 scp -i /home/isen/.ssh/id_rsa save_$login.tgz mgrell25@10.30.48.100:/home/saves
                 rm save_$login.tgz
+
+                #creer un crontab tous les jours sauf a week-end a 23h00 pour sauvegarder les fichiers
+                #crontab -e
+                #0 23 * * 1-5 tar -czvf save_$login.tgz /home/$login/a_sauver
+                #0 23 * * 1-5 scp -i /home/isen/.ssh/id_rsa save_$login.tgz mgrell25@server_ip:/home/saves
+                #0 23 * * 1-5 rm save_$login.tgz
+                #
+                #crontab -l | { cat; echo "0 23 * * 1-5 tar -czvf save_$login.tgz /home/$login/a_sauver"; } | crontab -
+                #crontab -l | { cat; echo "0 23 * * 1-5 scp -i /home/isen/.ssh/id_rsa save_$login.tgz mgrell25@server_ip:/home/saves"; } | crontab -
+                #crontab -l | { cat; echo "0 23 * * 1-5 rm save_$login.tgz"; } | crontab -
+                #
+                #crontab -l | { cat; echo "0 0 0 0 0 some entry"; } | crontab -
+                #
+                crontab -l | { cat; echo "0 0 0 0 0 some entry"; } | crontab -
+
+
+
+                #*---------------------------------------------------------*
+                #*           Configuration du serveur Nextcloud            *
+                #*---------------------------------------------------------*
+                apt install snapd -y
+                snap install core -y 
+                snap install nextcloud -y
+                snap connect nextcloud:removable-media
+
+                #créer des utilisateus sur nextcloud
+
+                #sudo nextcloud.manual-install $login $password
+                #sudo nextcloud.occ user:resetpassword $login
+
+                #comment générer un compte nextcloud pour chaque utilisateur
+                #https://docs.nextcloud.com/server/15/admin_manual/configuration_user/user_auth_ldap.html
+
+
+
                 
-                # crontab -l | { cat; echo "0 0 0 0 0 some entry"; } | crontab -
         fi
 #https://stackoverflow.com/questions/28927162/why-process-substitution-does-not-always-work-with-while-loop-in-bash
 done < <(awk 'NR>1' $file)
