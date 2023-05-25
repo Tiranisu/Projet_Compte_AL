@@ -69,6 +69,12 @@ fi
 
 
 #*---------------------------------------------------------*
+#*            Sauvegarde sur le serveur distant            *
+#*---------------------------------------------------------*
+service cron start
+
+
+#*---------------------------------------------------------*
 #*                Installation de Eclipse                  *
 #*---------------------------------------------------------*
 wget https://rhlx01.hs-esslingen.de/pub/Mirrors/eclipse/oomph/epp/2023-03/R/eclipse-inst-jre-linux64.tar.gz -O eclipse.tar.gz
