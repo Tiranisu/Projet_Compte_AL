@@ -4,9 +4,10 @@
 #*---------------------------------------------------------*
 #*                Définition des variables                 *
 #*---------------------------------------------------------*
-file="accounts.csv"
+input_file="accounts.csv"
 username="mgrell25"
 server_ip="10.30.48.100"
+rsa_key="/home/isen/.ssh/id_rsa"
 #Ici il faut mettrer l'adresse mail de l'envoyeur avec le @ remplacer par %40 
 sender_mail="mael.grellier-neau@isen-ouest.yncrea.fr"
 #Là, l'adresse avec l'@
@@ -23,7 +24,7 @@ auth_param="smtp.office365.com:587"
 #apt-get install ufw
 #ufw active
 #Bloque toutes les connexions de type FTP (sur le port 21)
-#ufw deny 21 
+#ufw deny ftp 
 #Bloque toutes les connexions de type UDP
 #ufw deny udp
 #Besoin de redemarrer pour appliquer les modifications
@@ -62,6 +63,8 @@ else
         if [ -d "/home/shared" ]; then
                 rm -r /home/shared
         fi
+        crontab -r
+
 fi
 
 
@@ -114,17 +117,27 @@ do
                 #*---------------------------------------------------------*
                 #*           Envoie des mails aux utilisateurs             *
                 #*---------------------------------------------------------*
-                ssh -n -i /home/isen/.ssh/id_rsa mgrell25@10.30.48.100 "mail --subject \"$name $surname, votre compte à été créé !\" --exec \"set sendmail=smtp://${sender_mail/@/%40}:$sender_passwd;auth=LOGIN@smtp.office365.com:587\" --append \"From:mael.grellier-neau@isen-ouest.yncrea.fr\" mael.grelneau@gmail.com <<< \"Bonjour, \n bonne nouvelle, votre compte est désormais disponible.\Pour pouvoir vous connectez, il vous suffit de vous munir de votre identifiant ainsi que votre mot de passe :\n Identifiant : $login\n Mot de passe : $password\n A des fin de sécurité, lors de votre 1er connexion, vous devrez changer votre mot de passe.\nCordialement.\""
+#                 ssh -n -i $rsa_key $username@$server_ip "mail --subject \"$name $surname, votre compte à été créé !\" --exec \"set sendmail=smtp://${sender_mail/@/%40}:$sender_passwd;auth=LOGIN@smtp.office365.com:587\" --append \"From:mael.grellier-neau@isen-ouest.yncrea.fr\" mael.grellier-neau@isen-ouest.yncrea.fr <<< \"Bonjour, 
 
+# Bonne nouvelle, votre compte est désormais disponible !
+# Pour pouvoir vous connectez, il vous suffit de vous munir de votre identifiant ainsi que votre mot de passe : 
+#         Identifiant : $login
+#         Mot de passe : $password
+
+# A des fin de sécurité, lors de votre 1er connexion, vous devrez changer votre mot de passe.
+# Cordialement.\""
+                
 
                 #*---------------------------------------------------------*
                 #*            Sauvegarde sur le serveur distant            *
                 #*---------------------------------------------------------*
-                crontab -l | { cat; echo "0 23 * * 1-5 tar -czvf save_$login.tgz /home/$login/a_sauver"; } | crontab -
-                crontab -l | { cat; echo "0 23 * * 1-5 scp -i /home/isen/.ssh/id_rsa save_$login.tgz mgrell25@server_ip:/home/saves"; } | crontab -
-                crontab -l | { cat; echo "0 23 * * 1-5 rm save_$login.tgz"; } | crontab -
+                save_name="save_$login.tgz"
+                # crontab -l | { cat; echo "0 23 * * 1-5 tar -czvf $save_name /home/$login/a_sauver"; } | crontab -
+                # crontab -l | { cat; echo "0 23 * * 1-5 scp -i /home/isen/.ssh/id_rsa $save_name $username@server_ip:/home/saves"; } | crontab -
+                # crontab -l | { cat; echo "0 23 * * 1-5 rm $save_name"; } | crontab -
                 
-
+                tar -czvf $save_name /home/$login/a_sauver
+                rm $save_name
                 #*---------------------------------------------------------*
                 #*           Configuration du serveur Nextcloud            *
                 #*---------------------------------------------------------*
@@ -132,7 +145,12 @@ do
 
 
 
+                #*---------------------------------------------------------*
+                #*               Configuration du monitoring               *
+                #*---------------------------------------------------------*
+                
+
                 
         fi
 #https://stackoverflow.com/questions/28927162/why-process-substitution-does-not-always-work-with-while-loop-in-bash
-done < <(awk 'NR>1' $file)
+done < <(awk 'NR>1' $input_file)
