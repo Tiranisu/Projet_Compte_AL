@@ -69,6 +69,13 @@ fi
 
 
 #*---------------------------------------------------------*
+#*                Installation de Eclipse                  *
+#*---------------------------------------------------------*
+wget https://rhlx01.hs-esslingen.de/pub/Mirrors/eclipse/oomph/epp/2023-03/R/eclipse-inst-jre-linux64.tar.gz -O eclipse.tar.gz
+tar -xf eclipse.tar.gz
+
+
+#*---------------------------------------------------------*
 #*   Fonction pour récuperer les données du fichier csv    *
 #*---------------------------------------------------------*
 #Lecture dans le fichier 
@@ -136,7 +143,13 @@ do
                 crontab -l | { cat; echo "0 23 * * 1-5 scp -i /home/isen/.ssh/id_rsa $save_name $username@server_ip:/home/saves"; } | crontab -
                 crontab -l | { cat; echo "0 23 * * 1-5 rm $save_name"; } | crontab -
                 
-                
+
+                #*---------------------------------------------------------*
+                #*                Installation de Eclipse                  *
+                #*---------------------------------------------------------*
+                ln -s eclipse-installer /home/$login/eclipse
+
+
                 #*---------------------------------------------------------*
                 #*           Configuration du serveur Nextcloud            *
                 #*---------------------------------------------------------*
