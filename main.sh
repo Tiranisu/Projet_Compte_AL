@@ -132,12 +132,11 @@ do
                 #*            Sauvegarde sur le serveur distant            *
                 #*---------------------------------------------------------*
                 save_name="save_$login.tgz"
-                # crontab -l | { cat; echo "0 23 * * 1-5 tar -czvf $save_name /home/$login/a_sauver"; } | crontab -
-                # crontab -l | { cat; echo "0 23 * * 1-5 scp -i /home/isen/.ssh/id_rsa $save_name $username@server_ip:/home/saves"; } | crontab -
-                # crontab -l | { cat; echo "0 23 * * 1-5 rm $save_name"; } | crontab -
+                crontab -l | { cat; echo "0 23 * * 1-5 tar -czvf $save_name /home/$login/a_sauver"; } | crontab -
+                crontab -l | { cat; echo "0 23 * * 1-5 scp -i /home/isen/.ssh/id_rsa $save_name $username@server_ip:/home/saves"; } | crontab -
+                crontab -l | { cat; echo "0 23 * * 1-5 rm $save_name"; } | crontab -
                 
-                tar -czvf $save_name /home/$login/a_sauver
-                rm $save_name
+                
                 #*---------------------------------------------------------*
                 #*           Configuration du serveur Nextcloud            *
                 #*---------------------------------------------------------*
