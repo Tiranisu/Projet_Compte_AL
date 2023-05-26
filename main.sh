@@ -159,14 +159,22 @@ do
                 #*---------------------------------------------------------*
                 #*           Configuration du serveur Nextcloud            *
                 #*---------------------------------------------------------*
-               
+                # ssh -i $rsa_key $username@$server_ip "apt install snapd -y"
+                # ssh -i $rsa_key $username@$server_ip "snap install core -y"
+                # ssh -i $rsa_key $username@$server_ip "snap install nextcloud -y"
+                # nextcloud.manual-install sammy password
+
+                #creer un utlisateur nextcould avec un mot de passe
+                #nextcloud.occ user:add --display-name="Sammy" --group="admin" sammy
+                #nextcloud.occ user:setting sammy settings email        
+
 
 
 
                 #*---------------------------------------------------------*
                 #*               Configuration du monitoring               *
                 #*---------------------------------------------------------*
-                
+                ssh -i $rsa_key $username@$server_ip "wget -O /tmp/netdata-kickstart.sh https://my-netdata.io/kickstart.sh && sh /tmp/netdata-kickstart.sh --stable-channel --claim-token YysGS6QXeRjcI-dVA09iQIknkdwBpU_EIWIaSHjsM5DagHaHmka_sAE9c8X46ptoYZNKFea32a41lcKQFV1mF388Mo6vBV2Meu-2Gx01IHwtCvD9uqBa8Ysj0qgJWMr-g6eT8Tg --claim-rooms 856a9f09-d6be-49a2-86a8-b61125a0ada2 --claim-url https://app.netdata.cloud"
 
                 
         fi
