@@ -53,7 +53,7 @@ if [ $input == 1 ]; then
         #*---------------------------------------------------------*
         #*            Sauvegarde sur le serveur distant            *
         #*---------------------------------------------------------*
-        #Démarrage de cron
+        #Démarrage de cron pour la routine de sauvegarde tous les jours sauf le WE à 23h 
         service cron start
 
 
@@ -61,16 +61,16 @@ if [ $input == 1 ]; then
         #*               Configuration du Pare-feu                 *
         #*---------------------------------------------------------*
         #Installation de Uncomplicated Firewall (ufw)
-        #apt-get install ufw
+        # apt install ufw -y
         
         #Activation du pare-feu
-        #ufw active
+        # ufw enable
         
-        #Bloque toutes les connexions de type FTP (sur le port 21)
+        #Bloque toutes les connexions de type FTP
         #ufw deny ftp 
         
         #Bloque toutes les connexions de type UDP
-        #ufw deny udp
+        #ufw deny proto udp from any to any
         
         #Redemarrer pour appliquer les modifications
         #ufw reload
@@ -80,13 +80,13 @@ if [ $input == 1 ]; then
         #*                Installation de Eclipse                  *
         #*---------------------------------------------------------*
         wget https://rhlx01.hs-esslingen.de/pub/Mirrors/eclipse/oomph/epp/2023-03/R/eclipse-inst-jre-linux64.tar.gz -O eclipse.tar.gz
-        tar -xf eclipse.tar.gz
+        tar -xf eclipse.tar.gz -o eclipse
 
 
         #*---------------------------------------------------------*
         #*               Configuration du monitoring               *
         #*---------------------------------------------------------*
-        ssh -i $rsa_key $username@$server_ip "wget -O /tmp/netdata-kickstart.sh https://my-netdata.io/kickstart.sh && sh /tmp/netdata-kickstart.sh --stable-channel --claim-token YysGS6QXeRjcI-dVA09iQIknkdwBpU_EIWIaSHjsM5DagHaHmka_sAE9c8X46ptoYZNKFea32a41lcKQFV1mF388Mo6vBV2Meu-2Gx01IHwtCvD9uqBa8Ysj0qgJWMr-g6eT8Tg --claim-rooms 856a9f09-d6be-49a2-86a8-b61125a0ada2 --claim-url https://app.netdata.cloud"
+        # ssh -i $rsa_key $username@$server_ip "wget -O /tmp/netdata-kickstart.sh https://my-netdata.io/kickstart.sh && sh /tmp/netdata-kickstart.sh --stable-channel --claim-token YysGS6QXeRjcI-dVA09iQIknkdwBpU_EIWIaSHjsM5DagHaHmka_sAE9c8X46ptoYZNKFea32a41lcKQFV1mF388Mo6vBV2Meu-2Gx01IHwtCvD9uqBa8Ysj0qgJWMr-g6eT8Tg --claim-rooms 856a9f09-d6be-49a2-86a8-b61125a0ada2 --claim-url https://app.netdata.cloud"
 
 
         #*---------------------------------------------------------*
@@ -179,9 +179,7 @@ do
                 #*            Sauvegarde sur le serveur distant            *
                 #*---------------------------------------------------------*
                 save_name="save_$login.tgz"
-                crontab -l | { cat; echo "0 23 * * 1-5 tar -czvf $save_name /home/$login/a_sauver"; } | crontab -
-                crontab -l | { cat; echo "0 23 * * 1-5 scp -i /home/isen/.ssh/id_rsa $save_name $username@server_ip:/home/saves"; } | crontab -
-                crontab -l | { cat; echo "0 23 * * 1-5 rm $save_name"; } | crontab -
+                crontab -l | { cat; echo "0 23 * * 1-5 tar -czvf $save_name /home/$login/a_sauver && scp -i /home/isen/.ssh/id_rsa $save_name $username@server_ip:/home/saves && rm $save_name"; } | crontab -b -
                 
 
                 #*---------------------------------------------------------*
