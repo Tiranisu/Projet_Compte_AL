@@ -16,19 +16,7 @@ sender_mail_full="mael.grellier-neau%40isen-ouest.yncrea.fr"
 sender_passwd="68Mgn04N*"
 #Les informations du serveur smtp de l'envoyeur
 auth_param="smtp.office365.com:587"
-
-
-#*---------------------------------------------------------*
-#*               Configuration du Pare-feu                 *
-#*---------------------------------------------------------*
-#apt-get install ufw
-#ufw active
-#Bloque toutes les connexions de type FTP (sur le port 21)
-#ufw deny ftp 
-#Bloque toutes les connexions de type UDP
-#ufw deny udp
-#Besoin de redemarrer pour appliquer les modifications
-#ufw reload 
+ 
 
 
 #*---------------------------------------------------------*
@@ -51,6 +39,7 @@ done
 #*---------------------------------------------------------*
 #*   Fonction pour la création des différents fichiers     *
 #*---------------------------------------------------------*
+#Si le choix définit par l'utilisateur est de faire une installation alors entrer dans le if
 if [ $input == 1 ]; then
         if [ ! -d "/home/shared" ]; then
                 #Création su fichier shared
@@ -59,26 +48,71 @@ if [ $input == 1 ]; then
                 chown root /home/shared
                 chmod o+rx /home/shared
         fi
+
+
+        #*---------------------------------------------------------*
+        #*            Sauvegarde sur le serveur distant            *
+        #*---------------------------------------------------------*
+        #Démarrage de cron
+        service cron start
+
+
+        #*---------------------------------------------------------*
+        #*               Configuration du Pare-feu                 *
+        #*---------------------------------------------------------*
+        #Installation de Uncomplicated Firewall (ufw)
+        #apt-get install ufw
+        
+        #Activation du pare-feu
+        #ufw active
+        
+        #Bloque toutes les connexions de type FTP (sur le port 21)
+        #ufw deny ftp 
+        
+        #Bloque toutes les connexions de type UDP
+        #ufw deny udp
+        
+        #Redemarrer pour appliquer les modifications
+        #ufw reload
+
+
+        #*---------------------------------------------------------*
+        #*                Installation de Eclipse                  *
+        #*---------------------------------------------------------*
+        wget https://rhlx01.hs-esslingen.de/pub/Mirrors/eclipse/oomph/epp/2023-03/R/eclipse-inst-jre-linux64.tar.gz -O eclipse.tar.gz
+        tar -xf eclipse.tar.gz
+
+
+        #*---------------------------------------------------------*
+        #*               Configuration du monitoring               *
+        #*---------------------------------------------------------*
+        ssh -i $rsa_key $username@$server_ip "wget -O /tmp/netdata-kickstart.sh https://my-netdata.io/kickstart.sh && sh /tmp/netdata-kickstart.sh --stable-channel --claim-token YysGS6QXeRjcI-dVA09iQIknkdwBpU_EIWIaSHjsM5DagHaHmka_sAE9c8X46ptoYZNKFea32a41lcKQFV1mF388Mo6vBV2Meu-2Gx01IHwtCvD9uqBa8Ysj0qgJWMr-g6eT8Tg --claim-rooms 856a9f09-d6be-49a2-86a8-b61125a0ada2 --claim-url https://app.netdata.cloud"
+
+
+        #*---------------------------------------------------------*
+        #*           Configuration du serveur Nextcloud            *
+        #*---------------------------------------------------------*
+        # ssh -i $rsa_key $username@$server_ip "apt install snapd -y"
+        # ssh -i $rsa_key $username@$server_ip "snap install core"
+        # ssh -i $rsa_key $username@$server_ip "snap install nextcloud"
+        # nextcloud.manual-install sammy password
+
+
 else 
         if [ -d "/home/shared" ]; then
                 rm -r /home/shared
         fi
         crontab -r
+        rm -r eclipse-installer
+        rm -r eclipse.tar.gz
 
 fi
 
 
-#*---------------------------------------------------------*
-#*            Sauvegarde sur le serveur distant            *
-#*---------------------------------------------------------*
-service cron start
 
 
-#*---------------------------------------------------------*
-#*                Installation de Eclipse                  *
-#*---------------------------------------------------------*
-wget https://rhlx01.hs-esslingen.de/pub/Mirrors/eclipse/oomph/epp/2023-03/R/eclipse-inst-jre-linux64.tar.gz -O eclipse.tar.gz
-tar -xf eclipse.tar.gz
+
+
 
 
 #*---------------------------------------------------------*
@@ -156,26 +190,11 @@ do
                 ln -s eclipse-installer /home/$login/eclipse
 
 
-                #*---------------------------------------------------------*
-                #*           Configuration du serveur Nextcloud            *
-                #*---------------------------------------------------------*
-                # ssh -i $rsa_key $username@$server_ip "apt install snapd -y"
-                # ssh -i $rsa_key $username@$server_ip "snap install core -y"
-                # ssh -i $rsa_key $username@$server_ip "snap install nextcloud -y"
-                # nextcloud.manual-install sammy password
+                
 
                 #creer un utlisateur nextcould avec un mot de passe
                 #nextcloud.occ user:add --display-name="Sammy" --group="admin" sammy
                 #nextcloud.occ user:setting sammy settings email        
-
-
-
-
-                #*---------------------------------------------------------*
-                #*               Configuration du monitoring               *
-                #*---------------------------------------------------------*
-                ssh -i $rsa_key $username@$server_ip "wget -O /tmp/netdata-kickstart.sh https://my-netdata.io/kickstart.sh && sh /tmp/netdata-kickstart.sh --stable-channel --claim-token YysGS6QXeRjcI-dVA09iQIknkdwBpU_EIWIaSHjsM5DagHaHmka_sAE9c8X46ptoYZNKFea32a41lcKQFV1mF388Mo6vBV2Meu-2Gx01IHwtCvD9uqBa8Ysj0qgJWMr-g6eT8Tg --claim-rooms 856a9f09-d6be-49a2-86a8-b61125a0ada2 --claim-url https://app.netdata.cloud"
-
                 
         fi
 #https://stackoverflow.com/questions/28927162/why-process-substitution-does-not-always-work-with-while-loop-in-bash
