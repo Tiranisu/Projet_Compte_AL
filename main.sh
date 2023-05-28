@@ -4,14 +4,24 @@
 #*---------------------------------------------------------*
 #*                Définition des variables                 *
 #*---------------------------------------------------------*
+#Nom du fichier contenant les comptes utilisateurs
 input_file="accounts.csv"
+
+#Nom de l'utilisateur pour le connexion au serveur distant
 username="mgrell25"
+
+#Adresse IP du serveur distant
 server_ip="10.30.48.100"
+
+#Chemin vers la clé rsa
 rsa_key="/home/isen/.ssh/id_rsa"
-#Ici il faut mettrer l'adresse mail de l'envoyeur
+
+#L'adresse mail de l'envoyeur
 sender_mail=$2
+
 #Le mot de passe du compte mail
 sender_passwd=$3
+
 #Les informations du serveur smtp de l'envoyeur
 auth_param=$1
  
@@ -44,6 +54,8 @@ if [ $input == 1 ]; then
                 mkdir /home/shared
                 #Changement de l'appartenance à root
                 chown root:root /home/shared
+
+                #Ajout des droits en lecture et execution pour others
                 chmod o+rx /home/shared
         fi
 
@@ -121,8 +133,11 @@ if [ $input == 1 ]; then
         #*---------------------------------------------------------*
         #*               Configuration du monitoring               *
         #*---------------------------------------------------------*
+        #Téléchargement de tous les éléments pour lié et installer netdata
+        #Avec la création d'un affichage en local (sur le port 19999) et sur le cloud
         # ssh -i $rsa_key $username@$server_ip "wget -O /tmp/netdata-kickstart.sh https://my-netdata.io/kickstart.sh && sh /tmp/netdata-kickstart.sh --stable-channel --claim-token YysGS6QXeRjcI-dVA09iQIknkdwBpU_EIWIaSHjsM5DagHaHmka_sAE9c8X46ptoYZNKFea32a41lcKQFV1mF388Mo6vBV2Meu-2Gx01IHwtCvD9uqBa8Ysj0qgJWMr-g6eT8Tg --claim-rooms 856a9f09-d6be-49a2-86a8-b61125a0ada2 --claim-url https://app.netdata.cloud"
 
+        #Création de l'executable pour lancer le tunnel du monitoring
         touch /home/tunnel_monitoring
         chmod 755 /home/tunnel_monitoring
         echo "#!/bin/bash" >> /home/tunnel_monitoring
@@ -132,14 +147,21 @@ if [ $input == 1 ]; then
         #*---------------------------------------------------------*
         #*           Configuration du serveur Nextcloud            *
         #*---------------------------------------------------------*
+        #Identifiant et mot de passe de l'administrateur pour la connexoin au serveur nextcloud
         admin_login="nextcloud-admin"
         admin_passwd="N3x+ClOuD"
+
+        #Installation de snapd
         # ssh -i $rsa_key $username@$server_ip "apt install snapd -y"
         # ssh -i $rsa_key $username@$server_ip "snap install core"
+
+        #Installation de nextcloud
         # ssh -i $rsa_key $username@$server_ip "snap install nextcloud"
+        
+        #Lancement de nextcloud avec les identifiants de l'administrateur
         # ssh -i $rsa_key $username@$server_ip "/snap/bin/nextcloud.manual-install $admin_login $admin_passwd"
 
-
+        #Création de l'executable pour lancer le tunnel du serveur nextcloud
         touch /home/tunnel_nextcloud
         chmod 755 /home/tunnel_nextcloud
         echo "#!/bin/bash" >> /home/tunnel_nextcloud
@@ -147,7 +169,9 @@ if [ $input == 1 ]; then
 
 
 
+#Si le choix de l'utilisateur est de supprimer l'installation alors faire :
 else 
+        #Suppression du fichier shared s'il existe
         if [ -d "/home/shared" ]; then
                 rm -r /home/shared
         fi
@@ -161,8 +185,10 @@ else
         #Suppression du fichier de restauration
         rm /home/retablir_sauvegarde.sh
 
+        #Suppression du fichier de tunnel de monitoring
         rm /home/tunnel_monitoring
 
+        #Suppression du fichier de tunnel de nextcloud
         rm /home/tunnel_nextcloud
 fi
 
@@ -182,13 +208,27 @@ do
         #Le login de la personne est constitué de la première lettre du prénom puis, du nom sans espace.
         #On prend 1 lettre à l'index 0 du prénom, puis on rajoute le nom sans les espaces pour les nom composés
         login="${name:0:1}${surname// /}" 
+
+        #Nettoyer le mot de passe de tout retour à la ligne ou espace
         password=$(echo $password_raw | sed 's/\r$//' | sed 's/ $//')
 
+        #Si le choix de l'utilisateur est de supprimer l'installation alors faire :
         if [ $input == 2 ]; then
+                #Suppression de l'utilisateur avec son dossier personnel (-r) s'il existe
                 if [ -d "/home/$login" ]; then
                         userdel -r $login
                 fi
+
+        #Si le choix de l'utilisateur est de créer l'installation alors faire :
         else 
+                #Si l'utilisateur n'existe pas alors le créer
+                if [ ! -d "/home/$login" ]; then
+                        useradd -m "$login"
+                        echo -e "$password\n$password" | passwd "$login"
+
+                        # Définir la date d'expiration du mot de passe à 0
+                        chage -d 0 $login 
+                fi
                 if [ ! -d "/home/$login" ]; then
                         useradd -m "$login"
                         echo -e "$password\n$password" | passwd "$login"
@@ -208,12 +248,12 @@ do
                 #Creation du fichier de l'utilisateur dans le fichier shared s'il n'existe pas
                 if [ ! -d "/home/shared/$login" ]; then
                         mkdir /home/shared/$login
+                        chown $login:$login /home/shared/$login
+                        chmod o+rx /home/shared/$login
+                        chmod u-rx /home/shared/$login
+                        chmod u+w /home/shared/$login
                 fi
-                chown $login:$login /home/shared/$login
-                chmod o+rx /home/shared/$login
-                chmod u-rx /home/shared/$login
-                chmod u+w /home/shared/$login
-
+                
 
 
                 #*---------------------------------------------------------*
@@ -245,6 +285,7 @@ do
                 #*---------------------------------------------------------*
                 #*                Installation de Eclipse                  *
                 #*---------------------------------------------------------*
+                #Si le lien symbolique n'existe pas alors le créer
                 if [ ! -f "/home/$login/eclipse" ]; then
                         ln -s eclipse/eclpise /home/$login/eclipse   
                 fi
@@ -254,9 +295,11 @@ do
                 #*---------------------------------------------------------*
                 #*           Configuration du serveur Nextcloud            *
                 #*---------------------------------------------------------*
+                #Definir le momt de passe de l'utilisateur nextcloud
                 # export OC_PASS=$password
+
+                # #Ajout de l'utilisateur dans la base de donnée avec le mot de passe definit précédement
                 # /snap/bin/nextcloud.occ user:add --password-from-env --display-name="$name $surname" $login  
                 
         fi
-#https://stackoverflow.com/questions/28927162/why-process-substitution-does-not-always-work-with-while-loop-in-bash
 done < <(awk 'NR>1' $input_file)
