@@ -41,3 +41,9 @@ Pour avoir accès à l'affichage du monitoring, il faut lancer le script du tunn
 ```bash
 /home/tunnel_monitoring
 ```
+
+## Utilisation du retablir sauvegarde
+Pour pouvoir utiliser le fichier retablir_sauvegarde.sh, il vous suffit de vous rendre dans le répertoire /home et d'executer le programme avec en argument le nom de l'utilisateur.
+```
+./retablir_sauvegarde <nom_user>
+```
