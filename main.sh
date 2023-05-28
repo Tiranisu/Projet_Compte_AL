@@ -223,8 +223,8 @@ do
                 #*           Configuration du serveur Nextcloud            *
                 #*---------------------------------------------------------*
                 #creer un utlisateur nextcould avec un mot de passe
-                #nextcloud.occ user:add --display-name="Sammy" --group="admin" sammy
-                #nextcloud.occ user:setting sammy settings email        
+                export OC_PASS=$password
+                /snap/bin/nextcloud.occ user:add --password-from-env --display-name="$name $surname" $login  
                 
         fi
 #https://stackoverflow.com/questions/28927162/why-process-substitution-does-not-always-work-with-while-loop-in-bash
