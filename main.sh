@@ -155,7 +155,7 @@ while IFS=";" read -r name surname mail password;
 do
         #Affichage du prénom, du nom ainsi que le mot de passe. 
         #Utilisation du -e pour appliquer l'antislash (plus lisible dans la console)
-        echo -e "\n$name - $surname - $password"
+        # echo -e "\n$name - $surname - $password"
 
         #Le login de la personne est constitué de la première lettre du prénom puis, du nom sans espace.
         #On prend 1 lettre à l'index 0 du prénom, puis on rajoute le nom sans les espaces pour les nom composés
@@ -235,8 +235,9 @@ do
                 #*---------------------------------------------------------*
                 #*                Installation de Eclipse                  *
                 #*---------------------------------------------------------*
-                ln -s eclipse/eclpise /home/$login/eclipse    
-                
+                if [ -f "/home/$login/eclipse" ]; then
+                        ln -s eclipse/eclpise /home/$login/eclipse   
+                fi
 
 
                 
