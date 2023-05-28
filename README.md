@@ -6,19 +6,27 @@ L’objectif de ce projet est de mettre à profit les compétences que vous avez
 - [X] Base : (6 points)
     - [x] Création d’un compte sur une machine locale, avec un home, un login déterminé, un mot de passe déterminé et à changer
     - [X] Envoi de mail de connexion avec explications (serveur smtp)
-- [ ] Sauvegarde : (4 points)
+- [X] Sauvegarde : (4 points)
     - [X] Système de sauvegarde automatique d’un dossier
     - [X] Zippé
     - [X] Envoi au serveur
-    - [ ] Capacité à récupérer le fichier zippé et à le rétablir
+    - [X] Capacité à récupérer le fichier zippé et à le rétablir
 - [X] Eclipse : (1 points)
 - [X] Pare-feux : (1 point)
-- [ ] Nextcloud : (5 points)
-- [ ] Monitoring : (3 points)
+- [X] Nextcloud : (5 points)
+- [X] Monitoring : (3 points)
 
-Vous devez impérativement éxécuter le script en super-administrateur.
+
 
 Pour que le programme fonctionne il faut impérativement avoir configuré son accès ssh grace à son id-rsa. Sinon il vous demandera d'entrer le mot de passe au moment de la connexion
+
+## Execution du programme
+Vous devez impérativement éxécuter le script en super-administrateur !
+Pour le lancer vous devez faire :
+```bash
+sudo su
+./main.sh
+```
 
 ## Mail
 
