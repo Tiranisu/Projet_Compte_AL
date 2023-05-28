@@ -40,10 +40,10 @@ done
 #Si le choix définit par l'utilisateur est de faire une installation alors entrer dans le if
 if [ $input == 1 ]; then
         if [ ! -d "/home/shared" ]; then
-                #Création su fichier shared
+                #Création du fichier shared
                 mkdir /home/shared
                 #Changement de l'appartenance à root
-                chown root /home/shared
+                chown root:root /home/shared
                 chmod o+rx /home/shared
         fi
 
@@ -59,22 +59,23 @@ if [ $input == 1 ]; then
 
         #Création du fichier de restauration
         touch /home/retablir_sauvegarde.sh
+        chmod 755 /home/retablir_sauvegarde.sh
         echo "#!/bin/bash" >> /home/retablir_sauvegarde.sh
 
         #Récupère le fichier de sauvegarde sur le serveur distant compréssé
-        echo "scp -i $rsa_key $username@$server_ip:$save_path" >> /home/retablir_sauvegarde.sh
+        echo "scp -i .ssh/rsa_key $username@$server_ip:$save_path" >> /home/retablir_sauvegarde.sh
 
         #Décompresse le fichier de sauvegarde
-        echo "tar -xzvf save_$1.tgz" >> /home/retablir_sauvegarde.sh
+        echo "tar -xzvf save_\$1.tgz" >> /home/retablir_sauvegarde.sh
 
         #Suppression de l'archive
-        echo "rm -r save_$1.tgz" >> /home/retablir_sauvegarde.sh
+        echo "rm -r save_\$1.tgz" >> /home/retablir_sauvegarde.sh
 
         #Suppression du dossier a_sauver de l'utilisateur
-        echo "rm -r /home/$1/a_sauver" >> /home/retablir_sauvegarde.sh
+        echo "rm -r /home/\$1/a_sauver" >> /home/retablir_sauvegarde.sh
         
         #Copie du dossier a_sauver contenu dans l'archive dans le dossier de l'utilisateur 
-        echo "mv home/$1/a_sauver /home/$1" >> /home/retablir_sauvegarde.sh
+        echo "mv home/\$1/a_sauver /home/\$1" >> /home/retablir_sauvegarde.sh
         
         #Suppression dde l'archive
         echo "rm -r home" >> /home/retablir_sauvegarde.sh
@@ -103,8 +104,13 @@ if [ $input == 1 ]; then
         #*---------------------------------------------------------*
         #*                Installation de Eclipse                  *
         #*---------------------------------------------------------*
+        #Téléchargement de la dernière versoin d'Eclipse
         # wget https://ftp.halifax.rwth-aachen.de/eclipse/technology/epp/downloads/release/2023-03/R/eclipse-java-2023-03-R-linux-gtk-x86_64.tar.gz -O eclipse.tar.gz
+        
+        #Décompression de l'archive sous le nom eclipse
         # tar -xf eclipse.tar.gz -o eclipse
+
+        #Suppression de l'archive
         # rm -r eclipse.tar.gz
 
 
@@ -123,6 +129,7 @@ if [ $input == 1 ]; then
         # ssh -i $rsa_key $username@$server_ip "snap install core"
         # ssh -i $rsa_key $username@$server_ip "snap install nextcloud"
         # ssh -i $rsa_key $username@$server_ip "/snap/bin/nextcloud.manual-install $admin_login $admin_passwd"
+
 
         # ssh -L 4242:$server_ip:80 $username@$server_ip
 
@@ -178,7 +185,7 @@ do
                 # Création du fichier a_sauver pour les utilisateurs s'il n'exixte pas
                 if [ ! -d "/home/$login/a_sauver" ]; then
                         mkdir /home/$login/a_sauver
-                        chown $login /home/$login/a_sauver
+                        chown $login:$login /home/$login/a_sauver
                 fi
 
 
@@ -186,30 +193,17 @@ do
                 if [ ! -d "/home/shared/$login" ]; then
                         mkdir /home/shared/$login
                 fi
-                chown $login /home/shared/$login
+                chown $login:$login /home/shared/$login
                 chmod o+rx /home/shared/$login
                 chmod u-rx /home/shared/$login
                 chmod u+w /home/shared/$login
-
-                #Création du dossier pour les clés ssh pour chaque utilisateur
-                if [ ! -d "/home/$login/.ssh" ]; then
-                        mkdir /home/$login/.ssh
-                        chown $login /home/$login/.ssh
-                fi
-
-                #Création de la clé ssh
-                if [ ! -f "/home/$login/.ssh/id_rsa" ]; then
-                        ssh-keygen -t rsa -f /home/$login/.ssh/id_rsa -q -P ""
-                        chown $login /home/$login/.ssh/id_rsa
-                        chown $login /home/$login/.ssh/id_rsa.pub
-                fi
 
 
 
                 #*---------------------------------------------------------*
                 #*           Envoie des mails aux utilisateurs             *
                 #*---------------------------------------------------------*
-#                 ssh -n -i $rsa_key $username@$server_ip "mail --subject \"$name $surname, votre compte à été créé !\" --exec \"set sendmail=smtp://${sender_mail/@/%40}:$sender_passwd;auth=LOGIN@smtp.office365.com:587\" --append \"From:mael.grellier-neau@isen-ouest.yncrea.fr\" mael.grellier-neau@isen-ouest.yncrea.fr <<< \"Bonjour, 
+#                 ssh -n -i $rsa_key $username@$server_ip "mail --subject \"$name $surname, votre compte à été créé !\" --exec \"set sendmail=smtp://${sender_mail/@/%40}:$sender_passwd;auth=LOGIN@smtp.office365.com:587\" --append \"From:mael.grellier-neau@isen-ouest.yncrea.fr\" $mail <<< \"Bonjour, 
 
 # Bonne nouvelle, votre compte est désormais disponible !
 # Pour pouvoir vous connectez, il vous suffit de vous munir de votre identifiant ainsi que votre mot de passe : 
@@ -227,7 +221,7 @@ do
 
                 #Routine de sauvegarde automatique qui compresse le dossier a_sauver de l'utilisateur 
                 #et l'envoie sur le serveur distant, puis supprime l'archive sur le pc
-                crontab -l | { cat; echo "0 23 * * 1-5 tar -czvf $save_name /home/$login/a_sauver && scp -i $rsa_kay $save_name $username@$server_ip:/home/saves && rm $save_name"; } | crontab -
+                crontab -l | { cat; echo "0 23 * * 1-5 tar -czvf $save_name /home/$login/a_sauver && scp -i $rsa_key $save_name $username@$server_ip:/home/saves && rm $save_name"; } | crontab -
 
                 
                 
@@ -235,9 +229,10 @@ do
                 #*---------------------------------------------------------*
                 #*                Installation de Eclipse                  *
                 #*---------------------------------------------------------*
-                if [ -f "/home/$login/eclipse" ]; then
-                        ln -s eclipse/eclpise /home/$login/eclipse   
-                fi
+                # if [ -f "/home/$login/eclipse" ]; then
+                #         ln -s eclipse/eclpise /home/$login/eclipse   
+                        chown $login:$login /home/$login/eclipse
+                # fi
 
 
                 

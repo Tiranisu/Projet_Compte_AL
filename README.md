@@ -20,3 +20,6 @@ Vous devez impérativement éxécuter le script en super-administrateur.
 
 Pour que le programme fonctionne il faut impérativement avoir configuré son accès ssh grace à son id-rsa. Sinon il vous demandera d'entrer le mot de passe au moment de la connexion
 
+## Mail
+
+smtp.office365.com:587
