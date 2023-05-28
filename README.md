@@ -17,17 +17,27 @@ L’objectif de ce projet est de mettre à profit les compétences que vous avez
 - [X] Monitoring : (3 points)
 
 
+Pour que le programme fonctionne, il faut impérativement avoir configuré son accès ssh grace à son id-rsa. Sinon il vous demandera d'entrer le mot de passe au moment de la connexion
 
-Pour que le programme fonctionne il faut impérativement avoir configuré son accès ssh grace à son id-rsa. Sinon il vous demandera d'entrer le mot de passe au moment de la connexion
 
 ## Execution du programme
-Vous devez impérativement éxécuter le script en super-administrateur !
+Vous devez impérativement exécuter le script en super-administrateur !
 Pour le lancer vous devez faire :
 ```bash
 sudo su
-./main.sh
+./main.sh <serveur_de_mail> <login_mail> <mot_de_passe_mail>
+```
+serveur_de_mail correspond au paramètre du serveur de mail utilisé (exemple avec outlook : smtp.office365.com:587)
+
+
+## Serveur Nextcloud
+Pour avoir accès au Nextcloud il faut lancer le tunnel ssh grâce au script tunnel_nextcloud dans le répertoire home.
+```bash
+/home/tunnel_nextcloud
 ```
 
-## Mail
-
-smtp.office365.com:587
+## Serveur Nextcloud
+Pour avoir accès à l'affichage du monitoring, il faut lancer le script du tunnel ssh du monitoring sur le port 19999 du serveur.
+```bash
+/home/tunnel_monitoring
+```
