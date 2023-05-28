@@ -173,6 +173,7 @@ do
                 # Création du fichier a_sauver pour les utilisateurs s'il n'exixte pas
                 if [ ! -d "/home/$login/a_sauver" ]; then
                         mkdir /home/$login/a_sauver
+                        chown $login /home/$login/a_sauver
                 fi
 
 
@@ -184,6 +185,20 @@ do
                 chmod o+rx /home/shared/$login
                 chmod u-rx /home/shared/$login
                 chmod u+w /home/shared/$login
+
+                #Création du dossier pour les clés ssh pour chaque utilisateur
+                if [ ! -d "/home/$login/.ssh" ]; then
+                        mkdir /home/$login/.ssh
+                        chown $login /home/$login/.ssh
+                fi
+
+                #Création de la clé ssh
+                if [ ! -f "/home/$login/.ssh/id_rsa" ]; then
+                        ssh-keygen -t rsa -f /home/$login/.ssh/id_rsa -q -P ""
+                        chown $login /home/$login/.ssh/id_rsa
+                        chown $login /home/$login/.ssh/id_rsa.pub
+                fi
+
 
 
                 #*---------------------------------------------------------*
