@@ -133,9 +133,14 @@ else
                 rm -r /home/shared
         fi
         
+        #Remise à zero du fichier de cron
         crontab -r
         
+        #Suppresion du fichier eclipse
         rm -r eclipse
+
+        #Suppression du fichier de restauration
+        rm /home/retablir_sauvegarde.sh
 
 fi
 
