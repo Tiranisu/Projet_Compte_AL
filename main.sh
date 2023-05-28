@@ -8,10 +8,8 @@ input_file="accounts.csv"
 username="mgrell25"
 server_ip="10.30.48.100"
 rsa_key="/home/isen/.ssh/id_rsa"
-#Ici il faut mettrer l'adresse mail de l'envoyeur avec le @ remplacer par %40 
+#Ici il faut mettrer l'adresse mail de l'envoyeur
 sender_mail="mael.grellier-neau@isen-ouest.yncrea.fr"
-#Là, l'adresse avec l'@
-sender_mail_full="mael.grellier-neau%40isen-ouest.yncrea.fr"
 #Le mot de passe du compte mail
 sender_passwd="68Mgn04N*"
 #Les informations du serveur smtp de l'envoyeur
@@ -61,25 +59,25 @@ if [ $input == 1 ]; then
 
         #Création du fichier de restauration
         touch /home/retablir_sauvegarde.sh
-        echo "#!/bin/bash" > /home/retablir_sauvegarde.sh
+        echo "#!/bin/bash" >> /home/retablir_sauvegarde.sh
 
         #Récupère le fichier de sauvegarde sur le serveur distant compréssé
-        echo "scp -i $rsa_key $username@$server_ip:$save_path" > /home/retablir_sauvegarde.sh
+        echo "scp -i $rsa_key $username@$server_ip:$save_path" >> /home/retablir_sauvegarde.sh
 
         #Décompresse le fichier de sauvegarde
-        echo "tar -xzvf save_$1.tgz" > /home/retablir_sauvegarde.sh
+        echo "tar -xzvf save_$1.tgz" >> /home/retablir_sauvegarde.sh
 
         #Suppression de l'archive
-        echo "rm -r save_$1.tgz" > /home/retablir_sauvegarde.sh
+        echo "rm -r save_$1.tgz" >> /home/retablir_sauvegarde.sh
 
         #Suppression du dossier a_sauver de l'utilisateur
-        echo "rm -r /home/$1/a_sauver" > /home/retablir_sauvegarde.sh
+        echo "rm -r /home/$1/a_sauver" >> /home/retablir_sauvegarde.sh
         
         #Copie du dossier a_sauver contenu dans l'archive dans le dossier de l'utilisateur 
-        echo "mv home/$1/a_sauver /home/$1" > /home/retablir_sauvegarde.sh
+        echo "mv home/$1/a_sauver /home/$1" >> /home/retablir_sauvegarde.sh
         
         #Suppression dde l'archive
-        echo "rm -r home" > /home/retablir_sauvegarde.sh
+        echo "rm -r home" >> /home/retablir_sauvegarde.sh
 
 
 
@@ -105,9 +103,9 @@ if [ $input == 1 ]; then
         #*---------------------------------------------------------*
         #*                Installation de Eclipse                  *
         #*---------------------------------------------------------*
-        wget https://ftp.halifax.rwth-aachen.de/eclipse/technology/epp/downloads/release/2023-03/R/eclipse-java-2023-03-R-linux-gtk-x86_64.tar.gz -O eclipse.tar.gz
-        tar -xf eclipse.tar.gz -o eclipse
-        rm -r eclipse.tar.gz
+        # wget https://ftp.halifax.rwth-aachen.de/eclipse/technology/epp/downloads/release/2023-03/R/eclipse-java-2023-03-R-linux-gtk-x86_64.tar.gz -O eclipse.tar.gz
+        # tar -xf eclipse.tar.gz -o eclipse
+        # rm -r eclipse.tar.gz
 
 
         #*---------------------------------------------------------*
@@ -125,6 +123,9 @@ if [ $input == 1 ]; then
         # ssh -i $rsa_key $username@$server_ip "snap install core"
         # ssh -i $rsa_key $username@$server_ip "snap install nextcloud"
         # ssh -i $rsa_key $username@$server_ip "/snap/bin/nextcloud.manual-install $admin_login $admin_passwd"
+
+        # ssh -L 4242:$server_ip:80 $username@$server_ip
+
 
 
 else 
@@ -223,8 +224,8 @@ do
                 #*           Configuration du serveur Nextcloud            *
                 #*---------------------------------------------------------*
                 #creer un utlisateur nextcould avec un mot de passe
-                export OC_PASS=$password
-                /snap/bin/nextcloud.occ user:add --password-from-env --display-name="$name $surname" $login  
+                # export OC_PASS=$password
+                # /snap/bin/nextcloud.occ user:add --password-from-env --display-name="$name $surname" $login  
                 
         fi
 #https://stackoverflow.com/questions/28927162/why-process-substitution-does-not-always-work-with-while-loop-in-bash
