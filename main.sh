@@ -9,11 +9,11 @@ username="mgrell25"
 server_ip="10.30.48.100"
 rsa_key="/home/isen/.ssh/id_rsa"
 #Ici il faut mettrer l'adresse mail de l'envoyeur
-sender_mail="mael.grellier-neau@isen-ouest.yncrea.fr"
+sender_mail=$2
 #Le mot de passe du compte mail
-sender_passwd="68Mgn04N*"
+sender_passwd=$3
 #Les informations du serveur smtp de l'envoyeur
-auth_param="smtp.office365.com:587"
+auth_param=$1
  
 
 
@@ -46,6 +46,10 @@ if [ $input == 1 ]; then
                 chown root:root /home/shared
                 chmod o+rx /home/shared
         fi
+
+        #Création du dossier saves sur la machine distante
+        # ssh -n -i $rsa_key $username@$server_ip "mkdir /home/saves"
+        # ssh -n -i $rsa_key $username@$server_ip "chmod o+rw /home/saves"
 
 
         #*---------------------------------------------------------*
@@ -105,19 +109,24 @@ if [ $input == 1 ]; then
         #*                Installation de Eclipse                  *
         #*---------------------------------------------------------*
         #Téléchargement de la dernière versoin d'Eclipse
-        # wget https://ftp.halifax.rwth-aachen.de/eclipse/technology/epp/downloads/release/2023-03/R/eclipse-java-2023-03-R-linux-gtk-x86_64.tar.gz -O eclipse.tar.gz
+        wget https://ftp.halifax.rwth-aachen.de/eclipse/technology/epp/downloads/release/2023-03/R/eclipse-java-2023-03-R-linux-gtk-x86_64.tar.gz -O eclipse.tar.gz
         
         #Décompression de l'archive sous le nom eclipse
-        # tar -xf eclipse.tar.gz -o eclipse
+        tar -xf eclipse.tar.gz -o eclipse
 
         #Suppression de l'archive
-        # rm -r eclipse.tar.gz
+        rm -r eclipse.tar.gz
 
 
         #*---------------------------------------------------------*
         #*               Configuration du monitoring               *
         #*---------------------------------------------------------*
         # ssh -i $rsa_key $username@$server_ip "wget -O /tmp/netdata-kickstart.sh https://my-netdata.io/kickstart.sh && sh /tmp/netdata-kickstart.sh --stable-channel --claim-token YysGS6QXeRjcI-dVA09iQIknkdwBpU_EIWIaSHjsM5DagHaHmka_sAE9c8X46ptoYZNKFea32a41lcKQFV1mF388Mo6vBV2Meu-2Gx01IHwtCvD9uqBa8Ysj0qgJWMr-g6eT8Tg --claim-rooms 856a9f09-d6be-49a2-86a8-b61125a0ada2 --claim-url https://app.netdata.cloud"
+
+        touch /home/tunnel_monitoring
+        chmod 755 /home/tunnel_monitoring
+        echo "#!/bin/bash" >> /home/tunnel_monitoring
+        echo "ssh -L 19999:$server_ip:19999 $username@$server_ip" >> /home/tunnel_monitoring
 
 
         #*---------------------------------------------------------*
@@ -131,7 +140,10 @@ if [ $input == 1 ]; then
         # ssh -i $rsa_key $username@$server_ip "/snap/bin/nextcloud.manual-install $admin_login $admin_passwd"
 
 
-        # ssh -L 4242:$server_ip:80 $username@$server_ip
+        touch /home/tunnel_nextcloud
+        chmod 755 /home/tunnel_nextcloud
+        echo "#!/bin/bash" >> /home/tunnel_nextcloud
+        echo "ssh -L 4242:$server_ip:80 $username@$server_ip" >> /home/tunnel_nextcloud
 
 
 
@@ -149,6 +161,9 @@ else
         #Suppression du fichier de restauration
         rm /home/retablir_sauvegarde.sh
 
+        rm /home/tunnel_monitoring
+
+        rm /home/tunnel_nextcloud
 fi
 
 
@@ -158,7 +173,7 @@ fi
 #Lecture dans le fichier 
 #Utilisation du -r avec read pour ne pas interpréter les caractères d'échappement (exemple avec l'antislash)
 #Source : https://forum.ubuntu-fr.org/viewtopic.php?id=245081
-while IFS=";" read -r name surname mail password;
+while IFS=";" read -r name surname mail password_raw;
 do
         #Affichage du prénom, du nom ainsi que le mot de passe. 
         #Utilisation du -e pour appliquer l'antislash (plus lisible dans la console)
@@ -167,6 +182,7 @@ do
         #Le login de la personne est constitué de la première lettre du prénom puis, du nom sans espace.
         #On prend 1 lettre à l'index 0 du prénom, puis on rajoute le nom sans les espaces pour les nom composés
         login="${name:0:1}${surname// /}" 
+        password=$(echo $password_raw | sed 's/\r$//' | sed 's/ $//')
 
         if [ $input == 2 ]; then
                 if [ -d "/home/$login" ]; then
@@ -175,7 +191,7 @@ do
         else 
                 if [ ! -d "/home/$login" ]; then
                         useradd -m "$login"
-                        echo -e "${password::-2}\n${password::-2}" | passwd "$login"
+                        echo -e "$password\n$password" | passwd "$login"
 
                         # Définir la date d'expiration du mot de passe à 0
                         chage -d 0 $login 
@@ -203,7 +219,7 @@ do
                 #*---------------------------------------------------------*
                 #*           Envoie des mails aux utilisateurs             *
                 #*---------------------------------------------------------*
-#                 ssh -n -i $rsa_key $username@$server_ip "mail --subject \"$name $surname, votre compte à été créé !\" --exec \"set sendmail=smtp://${sender_mail/@/%40}:$sender_passwd;auth=LOGIN@smtp.office365.com:587\" --append \"From:mael.grellier-neau@isen-ouest.yncrea.fr\" $mail <<< \"Bonjour, 
+#                 ssh -n -i $rsa_key $username@$server_ip "mail --subject \"$name $surname, votre compte à été créé !\" --exec \"set sendmail=smtp://${sender_mail/@/%40}:$sender_passwd;auth=LOGIN@smtp.office365.com:587\" --append \"From:$sender_mail\" $mail <<< \"Bonjour, 
 
 # Bonne nouvelle, votre compte est désormais disponible !
 # Pour pouvoir vous connectez, il vous suffit de vous munir de votre identifiant ainsi que votre mot de passe : 
@@ -229,17 +245,15 @@ do
                 #*---------------------------------------------------------*
                 #*                Installation de Eclipse                  *
                 #*---------------------------------------------------------*
-                # if [ -f "/home/$login/eclipse" ]; then
-                #         ln -s eclipse/eclpise /home/$login/eclipse   
-                        chown $login:$login /home/$login/eclipse
-                # fi
+                if [ ! -f "/home/$login/eclipse" ]; then
+                        ln -s eclipse/eclpise /home/$login/eclipse   
+                fi
 
 
                 
                 #*---------------------------------------------------------*
                 #*           Configuration du serveur Nextcloud            *
                 #*---------------------------------------------------------*
-                #creer un utlisateur nextcould avec un mot de passe
                 # export OC_PASS=$password
                 # /snap/bin/nextcloud.occ user:add --password-from-env --display-name="$name $surname" $login  
                 
