@@ -119,10 +119,12 @@ if [ $input == 1 ]; then
         #*---------------------------------------------------------*
         #*           Configuration du serveur Nextcloud            *
         #*---------------------------------------------------------*
+        admin_login="nextcloud-admin"
+        admin_passwd="N3x+ClOuD"
         # ssh -i $rsa_key $username@$server_ip "apt install snapd -y"
         # ssh -i $rsa_key $username@$server_ip "snap install core"
         # ssh -i $rsa_key $username@$server_ip "snap install nextcloud"
-        # nextcloud.manual-install sammy password
+        # ssh -i $rsa_key $username@$server_ip "/snap/bin/nextcloud.manual-install $admin_login $admin_passwd"
 
 
 else 
@@ -217,7 +219,9 @@ do
 
 
                 
-
+                #*---------------------------------------------------------*
+                #*           Configuration du serveur Nextcloud            *
+                #*---------------------------------------------------------*
                 #creer un utlisateur nextcould avec un mot de passe
                 #nextcloud.occ user:add --display-name="Sammy" --group="admin" sammy
                 #nextcloud.occ user:setting sammy settings email        
