@@ -44,6 +44,7 @@ select i in "Voulez-vous faire une installation ?" "Néttoyer votre machine d'un
 done
 
 
+
 #*---------------------------------------------------------*
 #*   Fonction pour la création des différents fichiers     *
 #*---------------------------------------------------------*
@@ -60,8 +61,9 @@ if [ $input == 1 ]; then
         fi
 
         #Création du dossier saves sur la machine distante
-        # ssh -n -i $rsa_key $username@$server_ip "mkdir /home/saves"
-        # ssh -n -i $rsa_key $username@$server_ip "chmod o+rw /home/saves"
+        ssh -n -i $rsa_key $username@$server_ip "mkdir /home/saves"
+        ssh -n -i $rsa_key $username@$server_ip "chmod o+rw /home/saves"
+
 
 
         #*---------------------------------------------------------*
@@ -102,19 +104,20 @@ if [ $input == 1 ]; then
         #*               Configuration du Pare-feu                 *
         #*---------------------------------------------------------*
         #Installation de Uncomplicated Firewall (ufw)
-        # apt install ufw -y
+        apt install ufw -y
         
         #Activation du pare-feu
-        # ufw enable
+        ufw enable
         
         #Bloque toutes les connexions de type FTP
-        #ufw deny ftp 
+        ufw deny ftp 
         
         #Bloque toutes les connexions de type UDP
-        #ufw deny proto udp from any to any
+        ufw deny proto udp from any to any
         
         #Redemarrer pour appliquer les modifications
-        #ufw reload
+        ufw reload
+
 
 
         #*---------------------------------------------------------*
@@ -130,18 +133,20 @@ if [ $input == 1 ]; then
         rm -r eclipse.tar.gz
 
 
+
         #*---------------------------------------------------------*
         #*               Configuration du monitoring               *
         #*---------------------------------------------------------*
         #Téléchargement de tous les éléments pour lié et installer netdata
         #Avec la création d'un affichage en local (sur le port 19999) et sur le cloud
-        # ssh -i $rsa_key $username@$server_ip "wget -O /tmp/netdata-kickstart.sh https://my-netdata.io/kickstart.sh && sh /tmp/netdata-kickstart.sh --stable-channel --claim-token YysGS6QXeRjcI-dVA09iQIknkdwBpU_EIWIaSHjsM5DagHaHmka_sAE9c8X46ptoYZNKFea32a41lcKQFV1mF388Mo6vBV2Meu-2Gx01IHwtCvD9uqBa8Ysj0qgJWMr-g6eT8Tg --claim-rooms 856a9f09-d6be-49a2-86a8-b61125a0ada2 --claim-url https://app.netdata.cloud"
+        ssh -i $rsa_key $username@$server_ip "wget -O /tmp/netdata-kickstart.sh https://my-netdata.io/kickstart.sh && sh /tmp/netdata-kickstart.sh --stable-channel --claim-token YysGS6QXeRjcI-dVA09iQIknkdwBpU_EIWIaSHjsM5DagHaHmka_sAE9c8X46ptoYZNKFea32a41lcKQFV1mF388Mo6vBV2Meu-2Gx01IHwtCvD9uqBa8Ysj0qgJWMr-g6eT8Tg --claim-rooms 856a9f09-d6be-49a2-86a8-b61125a0ada2 --claim-url https://app.netdata.cloud"
 
         #Création de l'executable pour lancer le tunnel du monitoring
         touch /home/tunnel_monitoring
         chmod 755 /home/tunnel_monitoring
         echo "#!/bin/bash" >> /home/tunnel_monitoring
         echo "ssh -L 19999:$server_ip:19999 $username@$server_ip" >> /home/tunnel_monitoring
+
 
 
         #*---------------------------------------------------------*
@@ -152,14 +157,14 @@ if [ $input == 1 ]; then
         admin_passwd="N3x+ClOuD"
 
         #Installation de snapd
-        # ssh -i $rsa_key $username@$server_ip "apt install snapd -y"
-        # ssh -i $rsa_key $username@$server_ip "snap install core"
+        ssh -i $rsa_key $username@$server_ip "apt install snapd -y"
+        ssh -i $rsa_key $username@$server_ip "snap install core"
 
         #Installation de nextcloud
-        # ssh -i $rsa_key $username@$server_ip "snap install nextcloud"
+        ssh -i $rsa_key $username@$server_ip "snap install nextcloud"
         
         #Lancement de nextcloud avec les identifiants de l'administrateur
-        # ssh -i $rsa_key $username@$server_ip "/snap/bin/nextcloud.manual-install $admin_login $admin_passwd"
+        ssh -i $rsa_key $username@$server_ip "/snap/bin/nextcloud.manual-install $admin_login $admin_passwd"
 
         #Création de l'executable pour lancer le tunnel du serveur nextcloud
         touch /home/tunnel_nextcloud
@@ -259,16 +264,17 @@ do
                 #*---------------------------------------------------------*
                 #*           Envoie des mails aux utilisateurs             *
                 #*---------------------------------------------------------*
-#                 ssh -n -i $rsa_key $username@$server_ip "mail --subject \"$name $surname, votre compte à été créé !\" --exec \"set sendmail=smtp://${sender_mail/@/%40}:$sender_passwd;auth=LOGIN@smtp.office365.com:587\" --append \"From:$sender_mail\" $mail <<< \"Bonjour, 
+                ssh -n -i $rsa_key $username@$server_ip "mail --subject \"$name $surname, votre compte à été créé !\" --exec \"set sendmail=smtp://${sender_mail/@/%40}:$sender_passwd;auth=LOGIN@smtp.office365.com:587\" --append \"From:$sender_mail\" $mail <<< \"Bonjour, 
 
-# Bonne nouvelle, votre compte est désormais disponible !
-# Pour pouvoir vous connectez, il vous suffit de vous munir de votre identifiant ainsi que votre mot de passe : 
-#         Identifiant : $login
-#         Mot de passe : $password
+Bonne nouvelle, votre compte est désormais disponible !
+Pour pouvoir vous connectez, il vous suffit de vous munir de votre identifiant ainsi que votre mot de passe : 
+        Identifiant : $login
+        Mot de passe : $password
 
-# A des fin de sécurité, lors de votre 1er connexion, vous devrez changer votre mot de passe.
-# Cordialement.\""
+A des fin de sécurité, lors de votre 1er connexion, vous devrez changer votre mot de passe.
+Cordialement.\""
                 
+
 
                 #*---------------------------------------------------------*
                 #*            Sauvegarde sur le serveur distant            *
@@ -296,10 +302,10 @@ do
                 #*           Configuration du serveur Nextcloud            *
                 #*---------------------------------------------------------*
                 #Definir le momt de passe de l'utilisateur nextcloud
-                # export OC_PASS=$password
+                export OC_PASS=$password
 
                 # #Ajout de l'utilisateur dans la base de donnée avec le mot de passe definit précédement
-                # /snap/bin/nextcloud.occ user:add --password-from-env --display-name="$name $surname" $login  
+                /snap/bin/nextcloud.occ user:add --password-from-env --display-name="$name $surname" $login  
                 
         fi
 done < <(awk 'NR>1' $input_file)
