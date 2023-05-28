@@ -56,6 +56,32 @@ if [ $input == 1 ]; then
         #Démarrage de cron pour la routine de sauvegarde tous les jours sauf le WE à 23h 
         service cron start
 
+        #Définition de l'emplacement et du nom de l'archive de sauvegarde sur le serveur distant
+        save_path="/home/saves/save_$1.tgz"
+
+        #Création du fichier de restauration
+        touch /home/retablir_sauvegarde.sh
+        echo "#!/bin/bash" > /home/retablir_sauvegarde.sh
+
+        #Récupère le fichier de sauvegarde sur le serveur distant compréssé
+        echo "scp -i $rsa_key $username@$server_ip:$save_path" > /home/retablir_sauvegarde.sh
+
+        #Décompresse le fichier de sauvegarde
+        echo "tar -xzvf save_$1.tgz" > /home/retablir_sauvegarde.sh
+
+        #Suppression de l'archive
+        echo "rm -r save_$1.tgz" > /home/retablir_sauvegarde.sh
+
+        #Suppression du dossier a_sauver de l'utilisateur
+        echo "rm -r /home/$1/a_sauver" > /home/retablir_sauvegarde.sh
+        
+        #Copie du dossier a_sauver contenu dans l'archive dans le dossier de l'utilisateur 
+        echo "mv home/$1/a_sauver /home/$1" > /home/retablir_sauvegarde.sh
+        
+        #Suppression dde l'archive
+        echo "rm -r home" > /home/retablir_sauvegarde.sh
+
+
 
         #*---------------------------------------------------------*
         #*               Configuration du Pare-feu                 *
@@ -79,8 +105,9 @@ if [ $input == 1 ]; then
         #*---------------------------------------------------------*
         #*                Installation de Eclipse                  *
         #*---------------------------------------------------------*
-        wget https://rhlx01.hs-esslingen.de/pub/Mirrors/eclipse/oomph/epp/2023-03/R/eclipse-inst-jre-linux64.tar.gz -O eclipse.tar.gz
+        wget https://ftp.halifax.rwth-aachen.de/eclipse/technology/epp/downloads/release/2023-03/R/eclipse-java-2023-03-R-linux-gtk-x86_64.tar.gz -O eclipse.tar.gz
         tar -xf eclipse.tar.gz -o eclipse
+        rm -r eclipse.tar.gz
 
 
         #*---------------------------------------------------------*
@@ -102,17 +129,12 @@ else
         if [ -d "/home/shared" ]; then
                 rm -r /home/shared
         fi
+        
         crontab -r
-        rm -r eclipse-installer
-        rm -r eclipse.tar.gz
+        
+        rm -r eclipse
 
 fi
-
-
-
-
-
-
 
 
 #*---------------------------------------------------------*
@@ -179,13 +201,19 @@ do
                 #*            Sauvegarde sur le serveur distant            *
                 #*---------------------------------------------------------*
                 save_name="save_$login.tgz"
-                crontab -l | { cat; echo "0 23 * * 1-5 tar -czvf $save_name /home/$login/a_sauver && scp -i /home/isen/.ssh/id_rsa $save_name $username@server_ip:/home/saves && rm $save_name"; } | crontab -b -
+
+                #Routine de sauvegarde automatique qui compresse le dossier a_sauver de l'utilisateur 
+                #et l'envoie sur le serveur distant, puis supprime l'archive sur le pc
+                crontab -l | { cat; echo "0 23 * * 1-5 tar -czvf $save_name /home/$login/a_sauver && scp -i $rsa_kay $save_name $username@$server_ip:/home/saves && rm $save_name"; } | crontab -
+
+                
                 
 
                 #*---------------------------------------------------------*
                 #*                Installation de Eclipse                  *
                 #*---------------------------------------------------------*
-                ln -s eclipse-installer /home/$login/eclipse
+                ln -s eclipse/eclpise /home/$login/eclipse    
+                
 
 
                 
